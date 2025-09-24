@@ -21,7 +21,6 @@ export const updateSearchCount = async (query: string = '', movie: Movie) => {
                 Query.equal('searchTerm', query)
             ]
         });
-        console.log(result);
 
         if (result.total > 0) {
             // update the row with incremented id
@@ -32,8 +31,6 @@ export const updateSearchCount = async (query: string = '', movie: Movie) => {
                 column: 'count',
                 value: 1
             });
-
-            console.log(result_update);
         } else {
             // create new row with count = 1
             const result_new = await tablesDB.createRow({
@@ -48,8 +45,6 @@ export const updateSearchCount = async (query: string = '', movie: Movie) => {
                     "title": movie.title
                 }
             });
-
-            console.log(result_new);
         }
     } catch (error) {
         console.log(error);
@@ -61,3 +56,21 @@ export const updateSearchCount = async (query: string = '', movie: Movie) => {
     // if found increment the searchCount field
     // if not found create a new record with searchCount set to 1
 }
+
+export const getTrendingMovies = async (): Promise<TrendingMovie[] | undefined> => {
+    try {
+        const result = await tablesDB.listRows({
+            databaseId: DATABASE_ID,
+            tableId: METRICS_TABLE_ID,
+            queries: [
+                Query.limit(5),
+                Query.orderDesc('count'),
+            ]
+        });
+
+        return result.rows as unknown as TrendingMovie[];
+    } catch (error) {
+        console.log(error);
+        return undefined;
+    }
+};
